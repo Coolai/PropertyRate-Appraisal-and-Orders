@@ -24,6 +24,11 @@ class TestController extends Controller
             $zip_codes = $data[15];
 
             echo "{$city_name} {$state_code} {$county_name} {$latitude} {$longitude} </br>";
+
+            // $zips = explode(" ", $zip_codes);
+            // print_r($zips);
+
+            break;
         }
     }
 }
