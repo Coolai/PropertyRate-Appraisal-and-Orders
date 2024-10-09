@@ -22,6 +22,8 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable()->useCurrentOnUpdate();
         });
+
+        // Appraiser User ID of 73781 with Zip Code 92086 has no equivalent zip code
     }
 
     /**

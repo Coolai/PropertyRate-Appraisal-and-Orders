@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // US Cities Data are from: https://simplemaps.com/data/us-cities
         Schema::create('cities', function (Blueprint $table) {
             $table->id();
             $table->string('name');
