@@ -3,15 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\OrderResource\Pages;
-use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Models\Order;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Actions\Action;
 
 class OrderResource extends Resource
 {
@@ -48,6 +46,9 @@ class OrderResource extends Resource
                 //
             ])
             ->actions([
+                Action::make('assign')
+                    ->url(fn (Order $record): string => route('filament.admin.resources.orders.assign', $record))
+                    ->icon('heroicon-o-user'),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -70,6 +71,8 @@ class OrderResource extends Resource
             'index' => Pages\ListOrders::route('/'),
             'create' => Pages\CreateOrder::route('/create'),
             'edit' => Pages\EditOrder::route('/{record}/edit'),
+            'view' => Pages\ViewOrder::route('/{record}'),
+            'assign' => Pages\AssignAppraiserToOrder::route('/{record}/assign-appraiser-to-order'),
         ];
     }
 }
