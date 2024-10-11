@@ -4,8 +4,9 @@ namespace App\Filament\Resources\OrderResource\Pages;
 
 use App\Filament\Resources\OrderResource;
 use App\Models\Appraiser;
+use App\Models\Order;
 use Filament\Resources\Pages\Page;
-use Filament\Actions\Action;
+use Filament\Tables\Actions\Action;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 
 use Filament\Tables\Columns\TextColumn;
@@ -42,13 +43,6 @@ class AssignAppraiserToOrder extends Page implements HasInfolists, HasTable, Has
 
     protected static ?string $title = 'Assign Appraiser to Order';
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Action::make('assign')->url('/admin/orders'),
-        ];
-    }
-
     public function table(Table $table): Table
     {
         $order = $this->getRecord();
@@ -57,8 +51,9 @@ class AssignAppraiserToOrder extends Page implements HasInfolists, HasTable, Has
             ->query(Appraiser::query())
             ->columns([
                 TextColumn::make('appraiser_user_id')->label('Appraiser User ID'),
-                TextColumn::make('rank'),
-                TextColumn::make('zip_code')->searchable(),
+                TextColumn::make('rank')->icon('heroicon-o-star')->iconColor('primary')->sortable(),
+                TextColumn::make('total_files_uploaded')->label('Completed Orders')->sortable(),
+                TextColumn::make('zip_code')->searchable()->icon('heroicon-o-map-pin'),
                 TextColumn::make('county')->searchable(),
             ])
             ->filters([
@@ -81,15 +76,21 @@ class AssignAppraiserToOrder extends Page implements HasInfolists, HasTable, Has
                             );
                     }),
                 Filter::make('highly_rated')
-                    ->label('4 Stars')
+                    ->label('4 Stars Only')
                     ->query(fn (Builder $query): Builder => $query->where('rank', 4)),
             ], layout: FiltersLayout::AboveContent)
             ->actions([
-                // ...
+                Action::make('appraiser')
+                    ->label('Assign')
+                    ->action(function (Appraiser $record) {
+                        $this->getRecord()->appraiser_id = $record->id;
+                        $this->getRecord()->save();
+                    }),
             ])
             ->bulkActions([
                 // ...
-            ]);
+            ])
+            ->defaultSort(fn ($query) => $query->orderBy('rank', 'desc')->orderBy('total_files_uploaded', 'desc'));
     }
 
     public function orderInfolist(Infolist $infolist): Infolist
@@ -100,13 +101,30 @@ class AssignAppraiserToOrder extends Page implements HasInfolists, HasTable, Has
                 Fieldset::make('Order Details')
                     ->schema([
                         TextEntry::make('order_id'),
-                        TextEntry::make('product'),
+                        TextEntry::make('product')->icon('heroicon-o-home-modern'),
                         TextEntry::make('city'),
                         TextEntry::make('state_code'),
-                        TextEntry::make('zip_code'),
+                        TextEntry::make('zip_code')->icon('heroicon-o-map-pin'),
                         TextEntry::make('county'),
                     ])
                     ->columns(4)
+            ]);
+    }
+
+    public function appraiserInfolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->record($this->getRecord())
+            ->schema([
+                Fieldset::make('Assigned Appraiser')
+                    ->schema([
+                        TextEntry::make('appraiser.appraiser_user_id')->label('User ID')->default('-not set-'),
+                        TextEntry::make('appraiser.rank')->label('Rank')->icon('heroicon-o-star')->default('-not set-'),
+                        TextEntry::make('appraiser.total_files_uploaded')->label('Completed Orders')->icon('heroicon-o-wrench-screwdriver')->default('-not set-'),
+                        TextEntry::make('appraiser.zip_code')->label('Zip Code')->default('-not set-'),
+                        TextEntry::make('appraiser.county')->label('County')->default('-not set-'),
+                    ])
+                    ->columns(3)
             ]);
     }
     

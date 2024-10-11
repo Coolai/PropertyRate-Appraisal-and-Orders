@@ -3,6 +3,8 @@
 
     {{ $this->orderInfolist }}
 
+    {{ $this->appraiserInfolist }}
+
     <div>
         {{ $this->table }}
     </div>

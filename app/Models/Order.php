@@ -80,4 +80,9 @@ class Order extends Model
                 break;
         }
     }
+
+    public function appraiser(): HasOne
+    {
+        return $this->hasOne(Appraiser::class, 'id', 'appraiser_id');
+    }
 }

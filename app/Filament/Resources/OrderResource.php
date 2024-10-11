@@ -34,10 +34,10 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('order_id')->searchable(),
+                Tables\Columns\TextColumn::make('order_id')->label('Order ID')->searchable(),
                 Tables\Columns\TextColumn::make('product'),
                 Tables\Columns\TextColumn::make('city')->searchable(),
-                Tables\Columns\TextColumn::make('state_code'),
+                Tables\Columns\TextColumn::make('state_code')->label('State'),
                 Tables\Columns\TextColumn::make('zip_code')->searchable(),
                 Tables\Columns\TextColumn::make('county'),
                 Tables\Columns\TextColumn::make('created_at')->sortable(),
