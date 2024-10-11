@@ -19,6 +19,10 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Infolists\Components\Fieldset;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Forms\Components\Select;
 
 class AssignAppraiserToOrder extends Page implements HasInfolists, HasTable, HasForms
 {
@@ -47,17 +51,39 @@ class AssignAppraiserToOrder extends Page implements HasInfolists, HasTable, Has
 
     public function table(Table $table): Table
     {
+        $order = $this->getRecord();
+
         return $table
             ->query(Appraiser::query())
             ->columns([
-                TextColumn::make('appraiser_user_id'),
+                TextColumn::make('appraiser_user_id')->label('Appraiser User ID'),
                 TextColumn::make('rank'),
-                TextColumn::make('zip_code'),
-                TextColumn::make('county'),
+                TextColumn::make('zip_code')->searchable(),
+                TextColumn::make('county')->searchable(),
             ])
             ->filters([
-                // ...
-            ])
+                Filter::make('custom')
+                    ->form([
+                        Select::make('appraisers')
+                            ->options([
+                                'great' => 'Great',
+                                'good' => 'Good',
+                                'okay' => 'Okay',
+                            ])
+                            ->default('great')
+                            ->selectablePlaceholder(false),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['appraisers'],
+                                fn (Builder $query, $selected): Builder => $query->whereIn('id', $this->getRecord()->listAppraiserMatch($selected)),
+                            );
+                    }),
+                Filter::make('highly_rated')
+                    ->label('4 Stars')
+                    ->query(fn (Builder $query): Builder => $query->where('rank', 4)),
+            ], layout: FiltersLayout::AboveContent)
             ->actions([
                 // ...
             ])
@@ -82,5 +108,18 @@ class AssignAppraiserToOrder extends Page implements HasInfolists, HasTable, Has
                     ])
                     ->columns(4)
             ]);
+    }
+    
+    function distance($lat1, $lon1, $lat2, $lon2) {
+        if (($lat1 == $lat2) && ($lon1 == $lon2)) {
+            return 0;
+        } else {
+            $theta = $lon1 - $lon2;
+            $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+            $dist = acos($dist);
+            $dist = rad2deg($dist);
+            $miles = $dist * 60 * 1.1515;
+            return $miles;
+        }
     }
 }

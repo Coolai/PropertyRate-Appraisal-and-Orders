@@ -28,7 +28,7 @@ class TestController extends Controller
          * 
          */
 
-        $order_city = City::where('name', 'Pasadena')->first();
+        $order_city = City::where('name', 'La Mesa')->first();
         echo "{$order_city->name} {$order_city->state_code} {$order_city->latitude},{$order_city->longitude}</br></br>";
 
         $great_match_appraisers = collect([]); // 0-10 miles away and no 1 star
@@ -65,8 +65,9 @@ class TestController extends Controller
         }
 
         // echo "{$appraiser->id} {$appraiser->appraiser_user_id}: {$appraiser->zip_code} {$appraiser->zipCodeDetails->latitude},{$appraiser->zipCodeDetails->longitude}</br>";
+        // $order = Order::first();
         // echo "<pre>";
-        // var_dump(Order::first());
+        // var_dump($order->listAppraiserMatch("great"));
         // echo "</pre>";
     }
 
